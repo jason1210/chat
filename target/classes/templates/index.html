@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket聊天室</title>
+</head>
+<body>
+<div>
+    <div><span>[[${demo}]]</span></div>
+</div>
+<br>
+<div>
+    <div>
+        <label>请输入用户名</label><input id="username" value="">
+    </div>
+    <div>
+        <label>请输入发送内容</label><input id="in_room_msg" value="">
+    </div>
+    <div>
+        <button id="user_add">登录</button>
+        <button id="user_send_all">发送消息</button>
+        <button id="user_back">断开连接</button>
+    </div>
+    <div>
+        <textarea id="message_content"></textarea>
+    </div>
+</div>
+</body>
+<script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        var urlPrefix = 'ws://192.168.0.104:8081/ws/';
+        var ws = null;
+
+        var joinfun = function () {
+            var username = $("#username").val();
+            if (username == '') {
+                alert("请输入用户名");
+                return;
+            }
+            var url = urlPrefix + username;
+            ws = new WebSocket(url);
+            ws.onopen = function () {
+                console.log("建立 websocket 连接...");
+            };
+            ws.onmessage = function (event) {
+                //服务端发送的消息
+                $('#message_content').append(event.data + '\n');
+                // 接到消息之后 任君处置
+            };
+            ws.onclose = function () {
+                $('#message_content').append('用户[' + username + '] 断开连接!');
+                console.log("关闭 websocket 连接...");
+            }
+        };
+        joinfun();//自动连接
+
+        // 重新连接
+        $('#user_add').click(function () {
+            joinfun();
+        });
+
+        //客户端发送消息到服务器
+        $('#user_send_all').click(function () {
+            var msg = $('#in_room_msg').val();
+            if (ws) {
+                ws.send(msg);
+            }
+        });
+        // 断开连接
+        $('#user_back').click(function () {
+            if (ws) {
+                ws.close();
+            }
+        });
+    });
+</script>
+</html>
