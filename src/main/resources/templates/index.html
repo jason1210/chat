@@ -6,12 +6,15 @@
 </head>
 <body>
 <div>
-    <div><span>[[${demo}]]</span></div>
+    <div><span>IM通讯 </span></div>
 </div>
 <br>
 <div>
     <div>
-        <label>请输入用户名</label><input id="username" value="">
+        <label>发送者</label><input id="userId" value="">
+    </div>
+    <div>
+        <label>接收者</label><input id="toUser" value="">
     </div>
     <div>
         <label>请输入发送内容</label><input id="in_room_msg" value="">
@@ -33,12 +36,12 @@
         var ws = null;
 
         var joinfun = function () {
-            var username = $("#username").val();
-            if (username == '') {
-                alert("请输入用户名");
+            var userId = $("#userId").val();
+            if (userId == '') {
+                alert("请输入用户id");
                 return;
             }
-            var url = urlPrefix + username;
+            var url = urlPrefix + userId;
             ws = new WebSocket(url);
             ws.onopen = function () {
                 console.log("建立 websocket 连接...");
@@ -49,7 +52,7 @@
                 // 接到消息之后 任君处置
             };
             ws.onclose = function () {
-                $('#message_content').append('用户[' + username + '] 断开连接!');
+                $('#message_content').append('用户[' + userId + '] 断开连接!');
                 console.log("关闭 websocket 连接...");
             }
         };
@@ -62,14 +65,25 @@
 
         //客户端发送消息到服务器
         $('#user_send_all').click(function () {
+            var userId = $("#userId").val();
             var msg = $('#in_room_msg').val();
+            var toUser = $("#toUser").val();
+
+            var req = {
+                userId: userId,
+                content: msg,
+                toUser: toUser
+            }
+
             if (ws) {
-                ws.send(msg);
+                ws.send(JSON.stringify(req));
             }
         });
         // 断开连接
         $('#user_back').click(function () {
             if (ws) {
+                console.log("手动 关闭 websocket 连接...");
+
                 ws.close();
             }
         });

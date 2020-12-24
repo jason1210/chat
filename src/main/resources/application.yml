@@ -4,7 +4,9 @@ server:
 spring:
   # 模板引擎
   thymeleaf:
-    mode: HTML
+    mode: HTML5
     encoding: utf-8
     # 禁用缓存
     cache: false
+    servlet:
+      content-type: text/html
